@@ -57,8 +57,7 @@ export function MyWorkoutsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">My Workouts</h1>
+      <div className="flex items-center justify-end">
         <Button onClick={() => navigate('/workouts/new')}>New Workout</Button>
       </div>
 

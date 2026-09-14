@@ -8,7 +8,6 @@ export function ExercisesPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl font-bold text-gray-900">Exercises</h1>
       <ul className="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white">
         {exercises?.map((ex) => (
           <li key={ex.id} className="flex items-center justify-between px-4 py-3">

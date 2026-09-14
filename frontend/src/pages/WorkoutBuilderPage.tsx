@@ -49,13 +49,9 @@ export function WorkoutBuilderPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">New Workout</h1>
-        <Badge color="blue">{builder.totalMeters}m total</Badge>
-      </div>
-
       {/* Tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex items-center justify-between border-b border-gray-200">
+        <div className="flex">
         {([
           { id: 'generate' as Tab, label: 'Random Generate' },
           { id: 'create' as Tab, label: 'Create' },
@@ -73,6 +69,8 @@ export function WorkoutBuilderPage() {
             {t.label}
           </button>
         ))}
+        </div>
+        <Badge color="blue">{builder.totalMeters}m total</Badge>
       </div>
 
       {tab === 'generate' && <GeneratePanel onLoad={builder.loadPlan} />}
