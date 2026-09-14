@@ -1,34 +1,55 @@
 -- +goose Up
-INSERT INTO exercises (name, category, phase, description, distance) VALUES
--- Warmup exercises
-('Easy Freestyle',         'freestyle',    'warmup',   'Relaxed freestyle to warm up',                    200),
-('Kick with Board',        'kick',         'warmup',   'Flutter kick holding a kickboard',                 100),
-('Catch-up Drill',         'drill',        'warmup',   'Alternate arms, touching at front before pulling', 100),
-('Sculling Drill',         'drill',        'warmup',   'Scull on back focusing on hand feel',              50),
-('Mixed Stroke Easy',      'mixed',        'warmup',   'Easy backstroke and freestyle alternating 50s',    200),
 
--- Main set exercises
-('Freestyle Sprint',       'sprint',       'main',     'All-out freestyle sprint',                         50),
-('Freestyle Threshold',    'freestyle',    'main',     'Freestyle at threshold pace',                      200),
-('IM',                     'mixed',        'main',     'Individual medley: fly, back, breast, free',       100),
-('Pull Buoy Freestyle',    'pull',         'main',     'Freestyle with pull buoy, focus on upper body',    200),
-('Backstroke',             'backstroke',   'main',     'Backstroke at moderate effort',                    100),
-('Butterfly',              'butterfly',    'main',     'Butterfly at controlled pace',                     50),
-('Breaststroke',           'breaststroke', 'main',     'Breaststroke at steady pace',                      100),
-('Descending Freestyle',   'freestyle',    'main',     'Freestyle getting faster each repeat',             100),
-('Kick Set',               'kick',         'main',     'Flutter kick without board, streamline',           100),
-('Paddles Freestyle',      'pull',         'main',     'Freestyle with paddles for power',                 200),
+-- Equipment
+INSERT INTO equipment (name, abbrev) VALUES
+('Kickboard',  'Bd'),
+('Pull Buoy',  'PB'),
+('Paddles',    'Pd'),
+('Fins',       'Fn'),
+('Snorkel',    'Sn'),
+('Band',       'Bn');
 
--- Cooldown exercises
-('Easy Backstroke',        'backstroke',   'cooldown', 'Relaxed backstroke to cool down',                  100),
-('Easy Choice Swim',       'mixed',        'cooldown', 'Swim any stroke at easy effort',                   200),
-('Sculling Cool-down',     'drill',        'cooldown', 'Easy sculling to bring heart rate down',           50),
-('Easy Kick',              'kick',         'cooldown', 'Gentle flutter kick on back',                      100);
+-- Exercise templates (no distance, no phase)
+INSERT INTO exercises (name, abbrev, category, description) VALUES
+-- Freestyle variants
+('Freestyle',               'Fr',       'freestyle',    'Front crawl at steady pace'),
+('Freestyle Sprint',        'Fr Spr',   'sprint',       'All-out freestyle sprint'),
+('Freestyle Threshold',     'Fr Thr',   'freestyle',    'Freestyle at threshold pace'),
+('Descending Freestyle',    'Fr Desc',  'freestyle',    'Freestyle getting faster each repeat'),
+-- Other strokes
+('Backstroke',              'Bk',       'backstroke',   'Backstroke at steady pace'),
+('Breaststroke',            'Br',       'breaststroke', 'Breaststroke at steady pace'),
+('Butterfly',               'Fly',      'butterfly',    'Butterfly at controlled pace'),
+('IM',                      'IM',       'mixed',        'Individual medley: fly, back, breast, free'),
+('Choice Swim',             'Ch',       'mixed',        'Swim any stroke at easy effort'),
+-- Kick
+('Kick',                    'K',        'kick',         'Flutter kick in streamline'),
+('Kick with Board',         'K w/ Bd',  'kick',         'Flutter kick holding a kickboard'),
+-- Pull
+('Pull Buoy Freestyle',     'Fr Pl',    'pull',         'Freestyle with pull buoy, focus on upper body'),
+('Paddles Freestyle',       'Fr Pd',    'pull',         'Freestyle with paddles for power'),
+-- Drills
+('Catch-up Drill',          'CU Dr',    'drill',        'Alternate arms, touching at front before pulling'),
+('Sculling',                'Sc',       'drill',        'Scull on back focusing on hand feel'),
+('Fingertip Drag',          'FTD',      'drill',        'Drag fingertips along water surface during recovery');
+
+-- Equipment links
+-- Kick with Board -> Kickboard
+INSERT INTO exercise_equipment (exercise_id, equipment_id)
+SELECT e.id, eq.id FROM exercises e, equipment eq
+WHERE e.name = 'Kick with Board' AND eq.name = 'Kickboard';
+
+-- Pull Buoy Freestyle -> Pull Buoy
+INSERT INTO exercise_equipment (exercise_id, equipment_id)
+SELECT e.id, eq.id FROM exercises e, equipment eq
+WHERE e.name = 'Pull Buoy Freestyle' AND eq.name = 'Pull Buoy';
+
+-- Paddles Freestyle -> Paddles
+INSERT INTO exercise_equipment (exercise_id, equipment_id)
+SELECT e.id, eq.id FROM exercises e, equipment eq
+WHERE e.name = 'Paddles Freestyle' AND eq.name = 'Paddles';
 
 -- +goose Down
-DELETE FROM exercises WHERE name IN (
-    'Easy Freestyle', 'Kick with Board', 'Catch-up Drill', 'Sculling Drill', 'Mixed Stroke Easy',
-    'Freestyle Sprint', 'Freestyle Threshold', 'IM', 'Pull Buoy Freestyle', 'Backstroke',
-    'Butterfly', 'Breaststroke', 'Descending Freestyle', 'Kick Set', 'Paddles Freestyle',
-    'Easy Backstroke', 'Easy Choice Swim', 'Sculling Cool-down', 'Easy Kick'
-);
+DELETE FROM exercise_equipment;
+DELETE FROM equipment;
+DELETE FROM exercises;
