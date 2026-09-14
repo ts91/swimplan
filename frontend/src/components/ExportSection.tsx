@@ -4,6 +4,7 @@ import { Card, Button } from './ui'
 
 const FORMATS = [
   { id: 'text', label: 'Plain Text', ext: 'txt', icon: '📄' },
+  { id: 'pdf', label: 'PDF', ext: 'pdf', icon: '📑' },
 ]
 
 export function ExportSection({ plan }: { plan: WorkoutPlan }) {
@@ -42,7 +43,6 @@ export function ExportSection({ plan }: { plan: WorkoutPlan }) {
           </Button>
         ))}
       </div>
-      <p className="text-xs text-gray-400 mt-2">More formats coming soon (PDF, Garmin FIT).</p>
     </Card>
   )
 }
