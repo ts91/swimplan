@@ -1,5 +1,28 @@
+import { useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
+
+function Avatar({ src, name }: { src: string; name: string }) {
+  const [failed, setFailed] = useState(false)
+  const initial = (name || '?').charAt(0).toUpperCase()
+
+  if (!src || failed) {
+    return (
+      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20 text-sm font-bold text-white border border-white/30">
+        {initial}
+      </span>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      className="w-7 h-7 rounded-full border border-white/30"
+      onError={() => setFailed(true)}
+    />
+  )
+}
 
 export function Layout() {
   const { user, loading, logout } = useAuth()
@@ -26,13 +49,7 @@ export function Layout() {
                       My Workouts
                     </Link>
                     <div className="flex items-center gap-2 ml-2">
-                      {user.avatar_url && (
-                        <img
-                          src={user.avatar_url}
-                          alt={user.name}
-                          className="w-7 h-7 rounded-full border border-white/30"
-                        />
-                      )}
+                      <Avatar src={user.avatar_url} name={user.name} />
                       <button
                         onClick={logout}
                         className="text-sm text-white/80 hover:text-white hover:underline"
