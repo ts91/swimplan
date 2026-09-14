@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 import { generateWorkout } from '../api/workouts'
 import { saveWorkout, fetchPublicWorkouts, fetchWorkout, type WorkoutSummary } from '../api/savedWorkouts'
 import { useCreateWorkout, type BuilderItem } from '../hooks/useCreateWorkout'
@@ -19,6 +20,32 @@ export function WorkoutBuilderPage() {
   const [tab, setTab] = useState<Tab>('create')
   const { user } = useAuth()
   const builder = useCreateWorkout()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [loadingWorkout, setLoadingWorkout] = useState(false)
+
+  // Load workout from ?load=id on mount
+  useEffect(() => {
+    const loadId = searchParams.get('load')
+    if (!loadId) return
+    setLoadingWorkout(true)
+    fetchWorkout(loadId)
+      .then((saved) => {
+        builder.loadPlan({
+          name: saved.name,
+          total_meters: saved.total_meters,
+          warmup: saved.warmup,
+          main_set: saved.main_set,
+          cooldown: saved.cooldown,
+        })
+        setSearchParams({}, { replace: true })
+      })
+      .catch(() => {})
+      .finally(() => setLoadingWorkout(false))
+  }, [])
+
+  if (loadingWorkout) {
+    return <p className="text-gray-500">Loading workout...</p>
+  }
 
   return (
     <div className="space-y-6">
