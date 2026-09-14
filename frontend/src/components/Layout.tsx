@@ -9,8 +9,8 @@ export function Layout() {
             Swimplan
           </Link>
           <div className="flex gap-4">
-            <Link to="/" className="hover:underline">
-              Home
+            <Link to="/create" className="hover:underline">
+              Create
             </Link>
             <Link to="/generate" className="hover:underline">
               Generate

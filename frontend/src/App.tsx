@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { HomePage } from './pages/HomePage'
 import { ExercisesPage } from './pages/ExercisesPage'
 import { GeneratePage } from './pages/GeneratePage'
+import { CreatePage } from './pages/CreatePage'
 import { Layout } from './components/Layout'
 
 const queryClient = new QueryClient({
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/create" element={<CreatePage />} />
             <Route path="/generate" element={<GeneratePage />} />
             <Route path="/exercises" element={<ExercisesPage />} />
           </Route>
