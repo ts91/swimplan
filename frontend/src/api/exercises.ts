@@ -1,10 +1,16 @@
+export interface Equipment {
+  id: string
+  name: string
+  abbrev: string
+}
+
 export interface Exercise {
   id: string
   name: string
+  abbrev: string
   category: string
-  phase: string
   description: string
-  distance: number
+  equipment: Equipment[]
 }
 
 export async function fetchExercises(): Promise<Exercise[]> {

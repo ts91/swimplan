@@ -1,5 +1,6 @@
 export interface PlanItem {
   name: string
+  abbrev: string
   sets: number
   distance: number
   rest_sec: number
@@ -29,4 +30,16 @@ export async function generateWorkout(req: GenerateRequest): Promise<WorkoutPlan
     throw new Error(err.error || 'Failed to generate workout')
   }
   return res.json()
+}
+
+export async function exportWorkout(plan: WorkoutPlan, format = 'text'): Promise<Blob> {
+  const res = await fetch(`/api/v1/workouts/export?format=${format}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(plan),
+  })
+  if (!res.ok) {
+    throw new Error('Failed to export workout')
+  }
+  return res.blob()
 }

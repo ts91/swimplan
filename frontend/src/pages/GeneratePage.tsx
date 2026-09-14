@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useGenerateWorkout } from '../hooks/useGenerateWorkout'
+import { exportWorkout } from '../api/workouts'
 import type { PlanItem, WorkoutPlan } from '../api/workouts'
 
 export function GeneratePage() {
@@ -9,6 +10,21 @@ export function GeneratePage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     mutate({ total_distance: distance })
+  }
+
+  async function handleExport() {
+    if (!plan) return
+    try {
+      const blob = await exportWorkout(plan)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'workout.txt'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      alert('Export failed')
+    }
   }
 
   return (
@@ -48,19 +64,27 @@ export function GeneratePage() {
         )}
       </form>
 
-      {plan && <PlanDisplay plan={plan} />}
+      {plan && <PlanDisplay plan={plan} onExport={handleExport} />}
     </div>
   )
 }
 
-function PlanDisplay({ plan }: { plan: WorkoutPlan }) {
+function PlanDisplay({ plan, onExport }: { plan: WorkoutPlan; onExport: () => void }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-900">{plan.name}</h2>
-        <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-          {plan.total_meters}m total
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
+            {plan.total_meters}m total
+          </span>
+          <button
+            onClick={onExport}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+          >
+            Export .txt
+          </button>
+        </div>
       </div>
 
       <PhaseSection title="Warmup" items={plan.warmup} color="amber" />
@@ -95,7 +119,10 @@ function PhaseSection({ title, items, color }: { title: string; items: PlanItem[
         {items.map((item, i) => (
           <li key={i} className="flex items-center justify-between rounded-md bg-white px-3 py-2 shadow-sm">
             <div>
-              <p className="font-medium text-gray-900">{item.name}</p>
+              <p className="font-medium text-gray-900">
+                {item.name}
+                <span className="ml-2 text-xs text-gray-400">({item.abbrev})</span>
+              </p>
               <p className="text-xs text-gray-500">{item.notes}</p>
             </div>
             <div className="text-right text-sm text-gray-600 whitespace-nowrap ml-4">

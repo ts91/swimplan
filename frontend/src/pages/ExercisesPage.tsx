@@ -13,19 +13,21 @@ export function ExercisesPage() {
         {exercises?.map((ex) => (
           <li key={ex.id} className="flex items-center justify-between px-4 py-3">
             <div>
-              <p className="font-medium text-gray-900">{ex.name}</p>
+              <p className="font-medium text-gray-900">
+                {ex.name}
+                <span className="ml-2 text-sm text-gray-400">({ex.abbrev})</span>
+              </p>
               <p className="text-sm text-gray-500">{ex.description}</p>
             </div>
-            <div className="flex gap-2 ml-4">
+            <div className="flex gap-2 ml-4 flex-shrink-0">
               <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
                 {ex.category}
               </span>
-              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                {ex.phase}
-              </span>
-              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-                {ex.distance}m
-              </span>
+              {ex.equipment?.map((eq) => (
+                <span key={eq.id} className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+                  {eq.name}
+                </span>
+              ))}
             </div>
           </li>
         ))}
