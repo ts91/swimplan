@@ -44,6 +44,5 @@ type PlanItem struct {
 
 // GenerateRequest is the input for workout generation.
 type GenerateRequest struct {
-	TotalDistance int    `json:"total_distance"`
-	Intensity    string `json:"intensity"`
+	TotalDistance int `json:"total_distance"`
 }

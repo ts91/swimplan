@@ -19,14 +19,7 @@ func (h *Handler) GenerateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch req.Intensity {
-	case "easy", "moderate", "hard":
-	default:
-		writeError(w, http.StatusBadRequest, "intensity must be easy, moderate, or hard")
-		return
-	}
-
-	plan, err := h.Generator.Generate(r.Context(), req.TotalDistance, req.Intensity)
+	plan, err := h.Generator.Generate(r.Context(), req.TotalDistance)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to generate workout")
 		return

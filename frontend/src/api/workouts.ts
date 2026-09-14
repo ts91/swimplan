@@ -16,7 +16,6 @@ export interface WorkoutPlan {
 
 export interface GenerateRequest {
   total_distance: number
-  intensity: 'easy' | 'moderate' | 'hard'
 }
 
 export async function generateWorkout(req: GenerateRequest): Promise<WorkoutPlan> {

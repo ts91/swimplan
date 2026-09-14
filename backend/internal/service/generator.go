@@ -9,6 +9,8 @@ import (
 	"github.com/swimplan/backend/internal/repository"
 )
 
+const defaultRestSec = 20
+
 // Generator creates workout plans from the exercise pool.
 type Generator struct {
 	repo *repository.Repo
@@ -20,12 +22,10 @@ func NewGenerator(repo *repository.Repo) *Generator {
 }
 
 // Generate builds a workout plan with warmup, main set, and cooldown phases.
-func (g *Generator) Generate(ctx context.Context, totalDistance int, intensity string) (*model.WorkoutPlan, error) {
+func (g *Generator) Generate(ctx context.Context, totalDistance int) (*model.WorkoutPlan, error) {
 	warmupBudget := int(float64(totalDistance) * 0.15)
 	cooldownBudget := int(float64(totalDistance) * 0.10)
 	mainBudget := totalDistance - warmupBudget - cooldownBudget
-
-	restSec := restForIntensity(intensity)
 
 	warmupExercises, err := g.repo.ListExercisesByPhase(ctx, "warmup")
 	if err != nil {
@@ -40,12 +40,12 @@ func (g *Generator) Generate(ctx context.Context, totalDistance int, intensity s
 		return nil, fmt.Errorf("fetch cooldown exercises: %w", err)
 	}
 
-	warmup := fillPhase(warmupExercises, warmupBudget, restSec)
-	mainSet := fillPhase(mainExercises, mainBudget, restSec)
-	cooldown := fillPhase(cooldownExercises, cooldownBudget, restSec)
+	warmup := fillPhase(warmupExercises, warmupBudget, defaultRestSec)
+	mainSet := fillPhase(mainExercises, mainBudget, defaultRestSec)
+	cooldown := fillPhase(cooldownExercises, cooldownBudget, defaultRestSec)
 
 	plan := &model.WorkoutPlan{
-		Name:        fmt.Sprintf("%dm %s workout", totalDistance, intensity),
+		Name:        fmt.Sprintf("%dm workout", totalDistance),
 		TotalMeters: sumItems(warmup) + sumItems(mainSet) + sumItems(cooldown),
 		Warmup:      warmup,
 		MainSet:     mainSet,
@@ -107,17 +107,6 @@ func fillPhase(pool []model.Exercise, budget int, restSec int) []model.PlanItem 
 		}
 	}
 	return items
-}
-
-func restForIntensity(intensity string) int {
-	switch intensity {
-	case "easy":
-		return 30
-	case "hard":
-		return 10
-	default:
-		return 20
-	}
 }
 
 func sumItems(items []model.PlanItem) int {

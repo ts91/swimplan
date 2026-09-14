@@ -1,17 +1,14 @@
 import { useState } from 'react'
 import { useGenerateWorkout } from '../hooks/useGenerateWorkout'
-import type { GenerateRequest, PlanItem, WorkoutPlan } from '../api/workouts'
-
-const INTENSITIES = ['easy', 'moderate', 'hard'] as const
+import type { PlanItem, WorkoutPlan } from '../api/workouts'
 
 export function GeneratePage() {
   const [distance, setDistance] = useState(2000)
-  const [intensity, setIntensity] = useState<GenerateRequest['intensity']>('moderate')
   const { mutate, data: plan, isPending, error, reset } = useGenerateWorkout()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    mutate({ total_distance: distance, intensity })
+    mutate({ total_distance: distance })
   }
 
   return (
@@ -19,7 +16,6 @@ export function GeneratePage() {
       <h1 className="text-3xl font-bold text-gray-900">Generate Workout</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-gray-200 bg-white p-6">
-        {/* Distance */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Total distance: <span className="font-bold text-blue-600">{distance}m</span>
@@ -38,33 +34,6 @@ export function GeneratePage() {
             <span>5000m</span>
           </div>
         </div>
-
-        {/* Intensity */}
-        <fieldset>
-          <legend className="block text-sm font-medium text-gray-700 mb-2">Intensity</legend>
-          <div className="flex gap-3">
-            {INTENSITIES.map((level) => (
-              <label
-                key={level}
-                className={`flex-1 cursor-pointer rounded-lg border-2 px-4 py-2 text-center text-sm font-medium transition ${
-                  intensity === level
-                    ? 'border-blue-600 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="intensity"
-                  value={level}
-                  checked={intensity === level}
-                  onChange={() => { setIntensity(level); reset() }}
-                  className="sr-only"
-                />
-                {level.charAt(0).toUpperCase() + level.slice(1)}
-              </label>
-            ))}
-          </div>
-        </fieldset>
 
         <button
           type="submit"
