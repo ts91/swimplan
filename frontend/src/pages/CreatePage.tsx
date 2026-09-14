@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useExercises } from '../hooks/useExercises'
 import { useCreateWorkout } from '../hooks/useCreateWorkout'
-import { exportWorkout } from '../api/workouts'
 import { PlanDisplay } from '../components/PlanDisplay'
+import { ExportSection } from '../components/ExportSection'
 
 const PHASES = [
   { key: 'warmup' as const, label: 'Warmup' },
@@ -20,21 +20,6 @@ export function CreatePage() {
   const filtered = exercises?.filter(
     (ex) => ex.name.toLowerCase().includes(search.toLowerCase()) || ex.category.toLowerCase().includes(search.toLowerCase()),
   )
-
-  async function handleExport() {
-    const plan = toPlan()
-    try {
-      const blob = await exportWorkout(plan)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'workout.txt'
-      a.click()
-      URL.revokeObjectURL(url)
-    } catch {
-      alert('Export failed')
-    }
-  }
 
   const plan = toPlan()
 
@@ -177,18 +162,16 @@ export function CreatePage() {
             >
               {showPreview ? 'Hide Preview' : 'Preview'}
             </button>
-            <button
-              onClick={handleExport}
-              disabled={totalMeters === 0}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
-            >
-              Export .txt
-            </button>
           </div>
         </div>
       </div>
 
-      {showPreview && totalMeters > 0 && <PlanDisplay plan={plan} />}
+      {showPreview && totalMeters > 0 && (
+        <>
+          <PlanDisplay plan={plan} />
+          <ExportSection plan={plan} />
+        </>
+      )}
     </div>
   )
 }

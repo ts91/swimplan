@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useGenerateWorkout } from '../hooks/useGenerateWorkout'
-import { exportWorkout } from '../api/workouts'
 import { PlanDisplay } from '../components/PlanDisplay'
+import { ExportSection } from '../components/ExportSection'
 
 export function GeneratePage() {
   const [distance, setDistance] = useState(2000)
@@ -10,21 +10,6 @@ export function GeneratePage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     mutate({ total_distance: distance })
-  }
-
-  async function handleExport() {
-    if (!plan) return
-    try {
-      const blob = await exportWorkout(plan)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'workout.txt'
-      a.click()
-      URL.revokeObjectURL(url)
-    } catch {
-      alert('Export failed')
-    }
   }
 
   return (
@@ -67,12 +52,7 @@ export function GeneratePage() {
       {plan && (
         <>
           <PlanDisplay plan={plan} />
-          <button
-            onClick={handleExport}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-          >
-            Export .txt
-          </button>
+          <ExportSection plan={plan} />
         </>
       )}
     </div>
