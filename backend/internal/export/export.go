@@ -15,4 +15,5 @@ type Exporter interface {
 // Registry maps format names to their Exporter implementation.
 var Registry = map[string]Exporter{
 	"text": &TextExporter{},
+	"pdf":  &PdfExporter{},
 }
