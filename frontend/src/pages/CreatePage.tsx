@@ -3,6 +3,7 @@ import { useExercises } from '../hooks/useExercises'
 import { useCreateWorkout } from '../hooks/useCreateWorkout'
 import { PlanDisplay } from '../components/PlanDisplay'
 import { ExportSection } from '../components/ExportSection'
+import { SaveWorkoutButton } from '../components/SaveWorkoutButton'
 
 const PHASES = [
   { key: 'warmup' as const, label: 'Warmup' },
@@ -169,6 +170,9 @@ export function CreatePage() {
       {showPreview && totalMeters > 0 && (
         <>
           <PlanDisplay plan={plan} />
+          <div className="flex gap-3">
+            <SaveWorkoutButton plan={plan} />
+          </div>
           <ExportSection plan={plan} />
         </>
       )}
