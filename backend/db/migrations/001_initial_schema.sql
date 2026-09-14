@@ -2,11 +2,14 @@
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
     name TEXT NOT NULL DEFAULT '',
+    provider TEXT NOT NULL DEFAULT 'google',
+    provider_id TEXT NOT NULL DEFAULT '',
+    avatar_url TEXT NOT NULL DEFAULT '',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE UNIQUE INDEX idx_users_provider ON users(provider, provider_id);
 
 -- Exercises are stroke/drill templates — no distance or phase.
 CREATE TABLE exercises (
@@ -36,14 +39,18 @@ CREATE TABLE workout_plans (
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     total_meters INT NOT NULL DEFAULT 0,
+    share_token TEXT UNIQUE,
+    is_public BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE plan_items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workout_plan_id UUID NOT NULL REFERENCES workout_plans(id) ON DELETE CASCADE,
-    exercise_id UUID NOT NULL REFERENCES exercises(id),
+    exercise_id UUID REFERENCES exercises(id),
     phase TEXT NOT NULL DEFAULT 'main',
+    name TEXT NOT NULL DEFAULT '',
+    abbrev TEXT NOT NULL DEFAULT '',
     sets INT NOT NULL DEFAULT 1,
     distance INT NOT NULL DEFAULT 0,
     rest_sec INT NOT NULL DEFAULT 0,
@@ -51,7 +58,15 @@ CREATE TABLE plan_items (
     sort_order INT NOT NULL DEFAULT 0
 );
 
+CREATE TABLE workout_subscriptions (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    workout_plan_id UUID NOT NULL REFERENCES workout_plans(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, workout_plan_id)
+);
+
 -- +goose Down
+DROP TABLE IF EXISTS workout_subscriptions;
 DROP TABLE IF EXISTS plan_items;
 DROP TABLE IF EXISTS workout_plans;
 DROP TABLE IF EXISTS exercise_equipment;
