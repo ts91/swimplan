@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useGenerateWorkout } from '../hooks/useGenerateWorkout'
 import { PlanDisplay } from '../components/PlanDisplay'
 import { ExportSection } from '../components/ExportSection'
-import { SaveWorkoutButton } from '../components/SaveWorkoutButton'
 
 export function GeneratePage() {
   const [distance, setDistance] = useState(2000)
@@ -53,9 +52,6 @@ export function GeneratePage() {
       {plan && (
         <>
           <PlanDisplay plan={plan} />
-          <div className="flex gap-3">
-            <SaveWorkoutButton plan={plan} />
-          </div>
           <ExportSection plan={plan} />
         </>
       )}
