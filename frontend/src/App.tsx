@@ -3,8 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './lib/auth'
 import { HomePage } from './pages/HomePage'
 import { ExercisesPage } from './pages/ExercisesPage'
-import { GeneratePage } from './pages/GeneratePage'
-import { CreatePage } from './pages/CreatePage'
+import { WorkoutBuilderPage } from './pages/WorkoutBuilderPage'
 import { LoginPage } from './pages/LoginPage'
 import { MyWorkoutsPage } from './pages/MyWorkoutsPage'
 import { SharedWorkoutPage } from './pages/SharedWorkoutPage'
@@ -27,8 +26,7 @@ function App() {
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<HomePage />} />
-              <Route path="/create" element={<CreatePage />} />
-              <Route path="/generate" element={<GeneratePage />} />
+              <Route path="/workouts/new" element={<WorkoutBuilderPage />} />
               <Route path="/exercises" element={<ExercisesPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/my-workouts" element={<MyWorkoutsPage />} />

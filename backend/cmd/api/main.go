@@ -121,8 +121,8 @@ func main() {
 		r.Get("/exercises/{id}", h.GetExercise)
 		r.Post("/workouts/generate", h.GenerateWorkout)
 		r.Post("/workouts/export", h.ExportWorkout)
-		r.Get("/shared/{token}", h.GetSharedWorkout)
 		r.Get("/shared", h.ListPublicWorkouts)
+		r.Get("/shared/{token}", h.GetSharedWorkout)
 
 		// Protected (require auth)
 		r.Group(func(r chi.Router) {

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -136,6 +137,7 @@ func (h *Handler) ListPublicWorkouts(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("q")
 	workouts, err := h.Repo.ListPublicWorkouts(r.Context(), query, 20)
 	if err != nil {
+		log.Printf("ListPublicWorkouts error: %v", err)
 		writeError(w, http.StatusInternalServerError, "failed to list public workouts")
 		return
 	}
