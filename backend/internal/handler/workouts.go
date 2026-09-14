@@ -130,3 +130,17 @@ func (h *Handler) UnsubscribeWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"message": "unsubscribed"})
 }
+
+// ListPublicWorkouts returns recently shared public workouts.
+func (h *Handler) ListPublicWorkouts(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("q")
+	workouts, err := h.Repo.ListPublicWorkouts(r.Context(), query, 20)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to list public workouts")
+		return
+	}
+	if workouts == nil {
+		workouts = []model.WorkoutSummary{}
+	}
+	writeJSON(w, http.StatusOK, workouts)
+}

@@ -122,6 +122,7 @@ func main() {
 		r.Post("/workouts/generate", h.GenerateWorkout)
 		r.Post("/workouts/export", h.ExportWorkout)
 		r.Get("/shared/{token}", h.GetSharedWorkout)
+		r.Get("/shared", h.ListPublicWorkouts)
 
 		// Protected (require auth)
 		r.Group(func(r chi.Router) {

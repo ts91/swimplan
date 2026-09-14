@@ -183,3 +183,39 @@ func generateToken() string {
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
+
+// ListPublicWorkouts returns recently shared public workouts, with optional search.
+func (r *Repo) ListPublicWorkouts(ctx context.Context, query string, limit int) ([]model.WorkoutSummary, error) {
+	if limit <= 0 || limit > 50 {
+		limit = 20
+	}
+	var rows *sql.Rows
+	var err error
+	if query != "" {
+		rows, err = r.db.QueryContext(ctx, `
+			SELECT id, name, total_meters, is_public, false AS is_owner, created_at
+			FROM workout_plans
+			WHERE is_public = true AND name ILIKE '%' || $1 || '%'
+			ORDER BY created_at DESC LIMIT $2`, query, limit)
+	} else {
+		rows, err = r.db.QueryContext(ctx, `
+			SELECT id, name, total_meters, is_public, false AS is_owner, created_at
+			FROM workout_plans
+			WHERE is_public = true
+			ORDER BY created_at DESC LIMIT $1`, limit)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []model.WorkoutSummary
+	for rows.Next() {
+		var w model.WorkoutSummary
+		if err := rows.Scan(&w.ID, &w.Name, &w.TotalMeters, &w.IsPublic, &w.IsOwner, &w.CreatedAt); err != nil {
+			return nil, err
+		}
+		out = append(out, w)
+	}
+	return out, rows.Err()
+}

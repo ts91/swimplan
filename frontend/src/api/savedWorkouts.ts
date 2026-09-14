@@ -38,6 +38,13 @@ export async function fetchSharedWorkout(token: string): Promise<SavedWorkout> {
   return res.json()
 }
 
+export async function fetchPublicWorkouts(query = ''): Promise<WorkoutSummary[]> {
+  const url = query ? `/api/v1/shared?q=${encodeURIComponent(query)}` : '/api/v1/shared'
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('Failed to fetch public workouts')
+  return res.json()
+}
+
 export async function saveWorkout(plan: import('./workouts').WorkoutPlan): Promise<{ id: string }> {
   const res = await fetch('/api/v1/workouts', {
     method: 'POST',
