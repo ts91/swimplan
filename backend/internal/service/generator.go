@@ -50,7 +50,7 @@ func NewGenerator(repo *repository.Repo) *Generator {
 // Generate builds a workout plan with warmup, main set, and cooldown phases.
 // It fetches all exercise templates, filters them by category suitability,
 // and assigns distances per-category defaults.
-func (g *Generator) Generate(ctx context.Context, totalDistance int) (*model.WorkoutPlan, error) {
+func (g *Generator) Generate(ctx context.Context, totalDistance, poolLength int) (*model.WorkoutPlan, error) {
 	allExercises, err := g.repo.ListExercises(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("fetch exercises: %w", err)
@@ -64,13 +64,14 @@ func (g *Generator) Generate(ctx context.Context, totalDistance int) (*model.Wor
 	cooldownBudget := int(float64(totalDistance) * 0.10)
 	mainBudget := totalDistance - warmupBudget - cooldownBudget
 
-	warmup := fillPhase(warmupPool, warmupBudget)
-	mainSet := fillPhase(mainPool, mainBudget)
-	cooldown := fillPhase(cooldownPool, cooldownBudget)
+	warmup := fillPhase(warmupPool, warmupBudget, poolLength)
+	mainSet := fillPhase(mainPool, mainBudget, poolLength)
+	cooldown := fillPhase(cooldownPool, cooldownBudget, poolLength)
 
 	plan := &model.WorkoutPlan{
 		Name:        fmt.Sprintf("%dm workout", totalDistance),
 		TotalMeters: sumItems(warmup) + sumItems(mainSet) + sumItems(cooldown),
+		PoolLength:  poolLength,
 		Warmup:      warmup,
 		MainSet:     mainSet,
 		Cooldown:    cooldown,
@@ -96,17 +97,22 @@ func filterForPhase(exercises []model.Exercise, phase string) []model.Exercise {
 	return out
 }
 
-// distanceForExercise returns the typical distance for an exercise based on category.
-func distanceForExercise(ex model.Exercise) int {
-	if d, ok := defaultDistance[ex.Category]; ok {
-		return d
+// distanceForExercise returns the typical distance for an exercise, rounded to a multiple of poolLength.
+func distanceForExercise(ex model.Exercise, poolLength int) int {
+	d := 100
+	if dd, ok := defaultDistance[ex.Category]; ok {
+		d = dd
 	}
-	return 100
+	d = (d / poolLength) * poolLength
+	if d < poolLength {
+		d = poolLength
+	}
+	return d
 }
 
 // fillPhase picks random exercises from the pool and assigns sets/distances
 // until the budget is approximately met.
-func fillPhase(pool []model.Exercise, budget int) []model.PlanItem {
+func fillPhase(pool []model.Exercise, budget, poolLength int) []model.PlanItem {
 	if len(pool) == 0 || budget <= 0 {
 		return nil
 	}
@@ -123,7 +129,7 @@ func fillPhase(pool []model.Exercise, budget int) []model.PlanItem {
 	idx := 0
 	for remaining > 0 {
 		ex := shuffled[idx%len(shuffled)]
-		dist := distanceForExercise(ex)
+		dist := distanceForExercise(ex, poolLength)
 
 		sets := 1
 		if remaining >= dist*2 {
@@ -136,7 +142,10 @@ func fillPhase(pool []model.Exercise, budget int) []model.PlanItem {
 			}
 		}
 		if dist > remaining {
-			dist = remaining
+			dist = (remaining / poolLength) * poolLength
+			if dist < poolLength {
+				dist = poolLength
+			}
 		}
 
 		items = append(items, model.PlanItem{

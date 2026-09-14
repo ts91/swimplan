@@ -19,9 +19,9 @@ func (r *Repo) SaveWorkout(ctx context.Context, userID string, plan *model.Worko
 
 	var planID string
 	err = tx.QueryRowContext(ctx, `
-		INSERT INTO workout_plans (user_id, name, total_meters)
-		VALUES ($1, $2, $3)
-		RETURNING id`, userID, plan.Name, plan.TotalMeters).Scan(&planID)
+		INSERT INTO workout_plans (user_id, name, total_meters, pool_length)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`, userID, plan.Name, plan.TotalMeters, plan.PoolLength).Scan(&planID)
 	if err != nil {
 		return "", err
 	}
@@ -83,9 +83,9 @@ func (r *Repo) GetWorkout(ctx context.Context, id string) (*model.SavedWorkout, 
 	var w model.SavedWorkout
 	var shareToken sql.NullString
 	err := r.db.QueryRowContext(ctx, `
-		SELECT id, user_id, name, total_meters, share_token, is_public, created_at
+		SELECT id, user_id, name, total_meters, pool_length, share_token, is_public, created_at
 		FROM workout_plans WHERE id = $1`, id).
-		Scan(&w.ID, &w.UserID, &w.Name, &w.TotalMeters, &shareToken, &w.IsPublic, &w.CreatedAt)
+		Scan(&w.ID, &w.UserID, &w.Name, &w.TotalMeters, &w.PoolLength, &shareToken, &w.IsPublic, &w.CreatedAt)
 	if err != nil {
 		return nil, err
 	}

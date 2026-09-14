@@ -12,6 +12,7 @@ export interface SavedWorkout {
   user_id: string
   name: string
   total_meters: number
+  pool_length: number
   share_token?: string
   is_public: boolean
   created_at: string

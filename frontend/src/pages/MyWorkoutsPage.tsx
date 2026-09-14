@@ -4,9 +4,12 @@ import { fetchMyWorkouts, deleteWorkout, shareWorkout, type WorkoutSummary } fro
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button, Badge } from '../components/ui'
+import { ShareButtons } from '../components/ShareButtons'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 export function MyWorkoutsPage() {
   const { user } = useAuth()
+  useDocumentTitle('My Workouts')
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { data: workouts, isLoading } = useQuery<WorkoutSummary[]>({
@@ -47,59 +50,58 @@ export function MyWorkoutsPage() {
   if (!user) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600 mb-4">Sign in to see your saved workouts.</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">Sign in to see your saved workouts.</p>
         <Link to="/login" className="text-blue-600 hover:underline font-medium">Sign in</Link>
       </div>
     )
   }
 
-  if (isLoading) return <p className="text-gray-500">Loading...</p>
+  if (isLoading) return <p className="text-gray-500 dark:text-gray-400">Loading...</p>
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end">
-        <Button onClick={() => navigate('/workouts/new')}>New Workout</Button>
-      </div>
-
       {shareLink && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm">
-          <p className="font-medium text-green-800">Share link copied!</p>
-          <p className="text-green-700 break-all">{shareLink}</p>
-          <button onClick={() => setShareLink(null)} className="text-green-600 hover:underline text-xs mt-1">Dismiss</button>
+        <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/30 px-4 py-3 text-sm">
+          <p className="font-medium text-green-800 dark:text-green-300">Share link copied!</p>
+          <p className="text-green-700 dark:text-green-400 break-all">{shareLink}</p>
+          <div className="flex items-center justify-between mt-2">
+            <ShareButtons url={shareLink} />
+            <button onClick={() => setShareLink(null)} className="text-green-600 dark:text-green-400 hover:underline text-xs">Dismiss</button>
+          </div>
         </div>
       )}
 
       {(!workouts || workouts.length === 0) ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
           <p>No workouts yet. <Link to="/workouts/new" className="text-blue-600 hover:underline">Create one</Link>!</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Distance</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Created</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {workouts.map((w) => (
                 <tr
                   key={w.id}
                   onClick={() => handleRowClick(w.id)}
-                  className="hover:bg-blue-50 cursor-pointer transition"
+                  className="hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer transition"
                 >
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{w.name}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{w.total_meters}m</td>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{w.name}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{w.total_meters}m</td>
                   <td className="px-4 py-3 text-sm">
                     {!w.is_owner && <Badge color="blue">Subscribed</Badge>}
                     {w.is_public && w.is_owner && <Badge color="green">Shared</Badge>}
                     {!w.is_public && w.is_owner && <Badge color="gray">Private</Badge>}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
+                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                     {new Date(w.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3 text-right">

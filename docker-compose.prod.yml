@@ -1,0 +1,26 @@
+services:
+  db:
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    ports: []
+
+  api:
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: "${PORT}"
+      DATABASE_URL: "${DATABASE_URL}"
+      JWT_SECRET: "${JWT_SECRET}"
+      ALLOWED_ORIGINS: "${ALLOWED_ORIGINS}"
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"
+      GOOGLE_REDIRECT_URL: "${GOOGLE_REDIRECT_URL}"
+      FRONTEND_URL: "${FRONTEND_URL}"
+    ports: []
+
+  frontend:
+    restart: unless-stopped
+    ports:
+      - "80:80"

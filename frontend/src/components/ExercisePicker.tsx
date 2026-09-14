@@ -35,14 +35,14 @@ export function ExercisePicker({ onSelect }: ExercisePickerProps) {
       <button
         type="button"
         onClick={() => { setOpen((v) => !v); setSearch('') }}
-        className="inline-flex items-center gap-1 rounded-lg border border-dashed border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
+        className="inline-flex items-center gap-1 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 transition"
       >
         <span className="text-lg leading-none">+</span>
         <span>Add Exercise</span>
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg border border-gray-200 bg-white shadow-lg">
+        <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
           <div className="p-2">
             <Input
               type="text"
@@ -56,36 +56,36 @@ export function ExercisePicker({ onSelect }: ExercisePickerProps) {
             {search === '' ? (
               categories.map((cat) => (
                 <li key={cat}>
-                  <p className="px-2 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase">{cat}</p>
+                  <p className="px-2 pt-2 pb-1 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase">{cat}</p>
                   {exercises
                     ?.filter((ex) => ex.category === cat)
                     .map((ex) => (
                       <button
                         key={ex.id}
                         onClick={() => { onSelect(ex.name, ex.abbrev); setOpen(false) }}
-                        className="w-full text-left rounded-md px-3 py-1.5 text-sm hover:bg-blue-50 transition"
+                        className="w-full text-left rounded-md px-3 py-1.5 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 transition"
                       >
-                        <span className="font-medium text-gray-900">{ex.name}</span>
-                        <span className="ml-1 text-gray-400">({ex.abbrev})</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">{ex.name}</span>
+                        <span className="ml-1 text-gray-400 dark:text-gray-500">({ex.abbrev})</span>
                         {ex.equipment?.map((eq) => (
-                          <span key={eq.id} className="ml-1 text-xs text-amber-600">{eq.abbrev}</span>
+                          <span key={eq.id} className="ml-1 text-xs text-amber-600 dark:text-amber-400">{eq.abbrev}</span>
                         ))}
                       </button>
                     ))}
                 </li>
               ))
             ) : filtered?.length === 0 ? (
-              <li className="px-3 py-4 text-sm text-gray-400 text-center">No exercises found</li>
+              <li className="px-3 py-4 text-sm text-gray-400 dark:text-gray-500 text-center">No exercises found</li>
             ) : (
               filtered?.map((ex) => (
                 <li key={ex.id}>
                   <button
                     onClick={() => { onSelect(ex.name, ex.abbrev); setOpen(false) }}
-                    className="w-full text-left rounded-md px-3 py-1.5 text-sm hover:bg-blue-50 transition"
+                    className="w-full text-left rounded-md px-3 py-1.5 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 transition"
                   >
-                    <span className="font-medium text-gray-900">{ex.name}</span>
-                    <span className="ml-1 text-gray-400">({ex.abbrev})</span>
-                    <span className="ml-1 text-xs text-gray-400">{ex.category}</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{ex.name}</span>
+                    <span className="ml-1 text-gray-400 dark:text-gray-500">({ex.abbrev})</span>
+                    <span className="ml-1 text-xs text-gray-400 dark:text-gray-500">{ex.category}</span>
                   </button>
                 </li>
               ))

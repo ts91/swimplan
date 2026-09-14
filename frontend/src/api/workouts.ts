@@ -10,6 +10,7 @@ export interface PlanItem {
 export interface WorkoutPlan {
   name: string
   total_meters: number
+  pool_length: number
   warmup: PlanItem[]
   main_set: PlanItem[]
   cooldown: PlanItem[]
@@ -17,6 +18,7 @@ export interface WorkoutPlan {
 
 export interface GenerateRequest {
   total_distance: number
+  pool_length: number
 }
 
 export async function generateWorkout(req: GenerateRequest): Promise<WorkoutPlan> {

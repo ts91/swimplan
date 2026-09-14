@@ -6,6 +6,7 @@ type SavedWorkout struct {
 	UserID     string     `json:"user_id"`
 	Name       string     `json:"name"`
 	TotalMeters int       `json:"total_meters"`
+	PoolLength int        `json:"pool_length"`
 	ShareToken *string    `json:"share_token,omitempty"`
 	IsPublic   bool       `json:"is_public"`
 	CreatedAt  string     `json:"created_at"`

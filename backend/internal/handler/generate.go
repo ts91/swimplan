@@ -19,7 +19,16 @@ func (h *Handler) GenerateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	plan, err := h.Generator.Generate(r.Context(), req.TotalDistance)
+	poolLength := req.PoolLength
+	if poolLength == 0 {
+		poolLength = 25
+	}
+	if poolLength != 25 && poolLength != 50 {
+		writeError(w, http.StatusBadRequest, "pool_length must be 25 or 50")
+		return
+	}
+
+	plan, err := h.Generator.Generate(r.Context(), req.TotalDistance, poolLength)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to generate workout")
 		return

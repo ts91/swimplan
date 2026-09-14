@@ -1,10 +1,12 @@
 import { Button } from '../components/ui'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 export function LoginPage() {
+  useDocumentTitle('Sign In')
   return (
     <div className="flex flex-col items-center justify-center py-20 space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900">Sign in to Swimplan</h1>
-      <p className="text-gray-600 text-center max-w-md">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Sign in to Swimplan</h1>
+      <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
         Save your workouts, share them with others, and subscribe to workouts shared by the community.
       </p>
       <a href="/api/v1/auth/google">

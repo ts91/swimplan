@@ -7,9 +7,9 @@ const base = 'inline-flex items-center justify-center font-medium rounded-lg tra
 
 const variants: Record<Variant, string> = {
   primary: 'bg-blue-600 text-white shadow hover:bg-blue-700',
-  secondary: 'border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50',
-  danger: 'border border-red-200 text-red-600 hover:bg-red-50',
-  ghost: 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
+  secondary: 'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600',
+  danger: 'border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30',
+  ghost: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700',
 }
 
 const sizes: Record<Size, string> = {

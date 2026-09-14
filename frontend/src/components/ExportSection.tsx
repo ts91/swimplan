@@ -29,7 +29,7 @@ export function ExportSection({ plan }: { plan: WorkoutPlan }) {
 
   return (
     <Card>
-      <h3 className="font-semibold text-gray-900 mb-3">Export Workout</h3>
+      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Export Workout</h3>
       <div className="flex gap-3">
         {FORMATS.map((fmt) => (
           <Button

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
+import { useTheme } from '../lib/theme'
 
 function Avatar({ src, name, onClick }: { src: string; name: string; onClick?: () => void }) {
   const [failed, setFailed] = useState(false)
@@ -45,6 +46,7 @@ function NavItem({ to, label, active }: { to: string; label: string; active: boo
 
 export function Layout() {
   const { user, loading, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const { pathname } = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -60,8 +62,8 @@ export function Layout() {
   }, [menuOpen])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-blue-600 text-white shadow">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <nav className="bg-blue-600 dark:bg-gray-800 text-white shadow">
         <div className="mx-auto max-w-5xl flex items-center justify-between px-4 py-3">
           <Link to="/" className="text-xl font-bold tracking-tight">
             Swimplan
@@ -81,22 +83,15 @@ export function Layout() {
                         onClick={() => setMenuOpen((v) => !v)}
                       />
                       {menuOpen && (
-                        <div className="absolute right-0 top-full mt-2 w-56 rounded-lg border border-gray-200 bg-white shadow-lg z-30">
-                          <div className="px-4 py-3 border-b border-gray-100">
-                            <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                        <div className="absolute right-0 top-full mt-2 w-56 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg z-30">
+                          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                           </div>
                           <div className="py-1">
-                            <Link
-                              to="/my-workouts"
-                              onClick={() => setMenuOpen(false)}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                            >
-                              My Workouts
-                            </Link>
                             <button
                               onClick={() => { logout(); setMenuOpen(false) }}
-                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                             >
                               Sign out
                             </button>
@@ -115,6 +110,21 @@ export function Layout() {
                 )}
               </>
             )}
+            <button
+              onClick={toggleTheme}
+              className="ml-2 rounded-md p-1.5 text-white/80 hover:text-white hover:bg-white/10 transition"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
       </nav>

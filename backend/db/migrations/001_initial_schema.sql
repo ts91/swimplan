@@ -39,6 +39,7 @@ CREATE TABLE workout_plans (
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     total_meters INT NOT NULL DEFAULT 0,
+    pool_length INT NOT NULL DEFAULT 25,
     share_token TEXT UNIQUE,
     is_public BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()

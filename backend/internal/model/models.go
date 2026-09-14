@@ -37,6 +37,7 @@ type User struct {
 type WorkoutPlan struct {
 	Name        string     `json:"name"`
 	TotalMeters int        `json:"total_meters"`
+	PoolLength  int        `json:"pool_length"`
 	Warmup      []PlanItem `json:"warmup"`
 	MainSet     []PlanItem `json:"main_set"`
 	Cooldown    []PlanItem `json:"cooldown"`
@@ -55,4 +56,5 @@ type PlanItem struct {
 // GenerateRequest is the input for workout generation.
 type GenerateRequest struct {
 	TotalDistance int `json:"total_distance"`
+	PoolLength   int `json:"pool_length"`
 }

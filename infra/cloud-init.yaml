@@ -1,0 +1,55 @@
+#!/bin/bash
+set -euo pipefail
+
+MARKER="/opt/swimplan/.provisioned"
+if [ -f "$MARKER" ]; then
+  echo "Already provisioned, starting services..."
+  cd /opt/swimplan
+  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+  exit 0
+fi
+
+echo "=== Installing Docker ==="
+apt-get update -y
+apt-get install -y ca-certificates curl gnupg git
+
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list
+
+apt-get update -y
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+systemctl enable docker
+systemctl start docker
+
+echo "=== Cloning repository ==="
+git clone ${repo_url} /opt/swimplan
+cd /opt/swimplan
+
+echo "=== Writing .env ==="
+cat > /opt/swimplan/.env <<'ENVEOF'
+POSTGRES_USER=swimplan
+POSTGRES_PASSWORD=${db_password}
+POSTGRES_DB=swimplan
+DATABASE_URL=postgres://swimplan:${db_password}@db:5432/swimplan?sslmode=disable
+JWT_SECRET=${jwt_secret}
+GOOGLE_CLIENT_ID=${google_client_id}
+GOOGLE_CLIENT_SECRET=${google_client_secret}
+GOOGLE_REDIRECT_URL=http://${external_ip}/api/v1/auth/google/callback
+FRONTEND_URL=http://${external_ip}
+ALLOWED_ORIGINS=http://${external_ip}
+PORT=8080
+ENVEOF
+
+chmod 600 /opt/swimplan/.env
+
+echo "=== Starting services ==="
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+touch "$MARKER"
+echo "=== Provisioning complete ==="
