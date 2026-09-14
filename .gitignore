@@ -1,0 +1,31 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Backend
+backend/bin/
+backend/tmp/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Docker
+docker/.env
