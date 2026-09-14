@@ -16,18 +16,25 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 
 	dbpkg "github.com/swimplan/backend/db"
 	"github.com/swimplan/backend/internal/handler"
+	mw "github.com/swimplan/backend/internal/middleware"
 	"github.com/swimplan/backend/internal/repository"
 	"github.com/swimplan/backend/internal/service"
 )
 
 type Config struct {
-	Port           string   `envconfig:"PORT" default:"8080"`
-	DatabaseURL    string   `envconfig:"DATABASE_URL" default:"postgres://swimplan:swimplan@localhost:5432/swimplan?sslmode=disable"`
-	JWTSecret      string   `envconfig:"JWT_SECRET" default:"dev-secret-change-me"`
-	AllowedOrigins []string `envconfig:"ALLOWED_ORIGINS" default:"http://localhost:5173"`
+	Port               string   `envconfig:"PORT" default:"8080"`
+	DatabaseURL        string   `envconfig:"DATABASE_URL" default:"postgres://swimplan:swimplan@localhost:5432/swimplan?sslmode=disable"`
+	JWTSecret          string   `envconfig:"JWT_SECRET" default:"dev-secret-change-me"`
+	AllowedOrigins     []string `envconfig:"ALLOWED_ORIGINS" default:"http://localhost:5173,http://localhost:3000"`
+	GoogleClientID     string   `envconfig:"GOOGLE_CLIENT_ID" default:""`
+	GoogleClientSecret string   `envconfig:"GOOGLE_CLIENT_SECRET" default:""`
+	GoogleRedirectURL  string   `envconfig:"GOOGLE_REDIRECT_URL" default:"http://localhost:8080/api/v1/auth/google/callback"`
+	FrontendURL        string   `envconfig:"FRONTEND_URL" default:"http://localhost:3000"`
 }
 
 func main() {
@@ -67,6 +74,20 @@ func main() {
 	gen := service.NewGenerator(repo)
 	h := handler.New(repo, gen)
 
+	oauthCfg := &oauth2.Config{
+		ClientID:     cfg.GoogleClientID,
+		ClientSecret: cfg.GoogleClientSecret,
+		RedirectURL:  cfg.GoogleRedirectURL,
+		Scopes:       []string{"openid", "email", "profile"},
+		Endpoint:     google.Endpoint,
+	}
+	oa := &handler.OAuth{
+		Config:      oauthCfg,
+		Repo:        repo,
+		JWTSecret:   []byte(cfg.JWTSecret),
+		FrontendURL: cfg.FrontendURL,
+	}
+
 	// Router
 	r := chi.NewRouter()
 	r.Use(chimw.Logger)
@@ -79,21 +100,40 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
+	// Cookie-based auth: injects user ID into context if cookie present
+	r.Use(handler.CookieAuth(cfg.JWTSecret))
 
 	// Routes
 	r.Get("/healthz", handler.Healthz)
 
 	r.Route("/api/v1", func(r chi.Router) {
-		// Auth (stubs, kept for future use)
-		r.Post("/auth/register", handler.Register)
-		r.Post("/auth/login", handler.Login)
+		// Auth
+		r.Get("/auth/google", oa.GoogleLogin)
+		r.Get("/auth/google/callback", oa.GoogleCallback)
+		r.Post("/auth/logout", oa.Logout)
 
-		// Public — no auth required for MVP
+		// Auth-aware (user injected by CookieAuth middleware if logged in)
+		r.Get("/auth/me", oa.Me)
+
+		// Public
 		r.Get("/exercises", h.ListExercises)
 		r.Post("/exercises", h.CreateExercise)
 		r.Get("/exercises/{id}", h.GetExercise)
 		r.Post("/workouts/generate", h.GenerateWorkout)
 		r.Post("/workouts/export", h.ExportWorkout)
+		r.Get("/shared/{token}", h.GetSharedWorkout)
+
+		// Protected (require auth)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.RequireAuth)
+			r.Post("/workouts", h.SaveWorkout)
+			r.Get("/workouts", h.ListWorkouts)
+			r.Get("/workouts/{id}", h.GetWorkout)
+			r.Delete("/workouts/{id}", h.DeleteWorkout)
+			r.Post("/workouts/{id}/share", h.ShareWorkout)
+			r.Post("/workouts/{id}/subscribe", h.SubscribeWorkout)
+			r.Delete("/workouts/{id}/subscribe", h.UnsubscribeWorkout)
+		})
 	})
 
 	srv := &http.Server{

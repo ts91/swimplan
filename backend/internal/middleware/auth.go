@@ -12,6 +12,17 @@ type contextKey string
 
 const UserIDKey contextKey = "user_id"
 
+// WithUserID sets the user ID in the context.
+func WithUserID(ctx context.Context, userID string) context.Context {
+	return context.WithValue(ctx, UserIDKey, userID)
+}
+
+// GetUserID extracts the user ID from the context.
+func GetUserID(ctx context.Context) string {
+	v, _ := ctx.Value(UserIDKey).(string)
+	return v
+}
+
 // Auth provides JWT authentication middleware.
 type Auth struct {
 	secret []byte
@@ -55,7 +66,18 @@ func (a *Auth) Authenticate(next http.Handler) http.Handler {
 		}
 
 		userID, _ := claims["sub"].(string)
-		ctx := context.WithValue(r.Context(), UserIDKey, userID)
+		ctx := WithUserID(r.Context(), userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// RequireAuth returns 401 if no user ID is in the context.
+func RequireAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if GetUserID(r.Context()) == "" {
+			http.Error(w, `{"error":"authentication required"}`, http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
 	})
 }
