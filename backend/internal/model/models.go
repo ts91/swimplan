@@ -2,16 +2,23 @@ package model
 
 import "time"
 
-// Exercise represents a swimming exercise.
+// Exercise is a stroke/drill template — no distance or phase.
 type Exercise struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Category    string    `json:"category"`
-	Phase       string    `json:"phase"`
-	Description string    `json:"description"`
-	Distance    int       `json:"distance"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Abbrev      string      `json:"abbrev"`
+	Category    string      `json:"category"`
+	Description string      `json:"description"`
+	Equipment   []Equipment `json:"equipment"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
+}
+
+// Equipment represents a piece of swim equipment (e.g. kickboard, fins).
+type Equipment struct {
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Abbrev string `json:"abbrev"`
 }
 
 // User represents an application user.
@@ -33,9 +40,10 @@ type WorkoutPlan struct {
 	Cooldown    []PlanItem `json:"cooldown"`
 }
 
-// PlanItem is a single exercise within a workout plan.
+// PlanItem is a single exercise within a workout plan, with phase and distance assigned.
 type PlanItem struct {
 	Name     string `json:"name"`
+	Abbrev   string `json:"abbrev"`
 	Sets     int    `json:"sets"`
 	Distance int    `json:"distance"`
 	RestSec  int    `json:"rest_sec"`

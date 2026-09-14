@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// ListExercises returns all exercises from the database.
+// ListExercises returns all exercise templates from the database.
 func (h *Handler) ListExercises(w http.ResponseWriter, r *http.Request) {
 	exercises, err := h.Repo.ListExercises(r.Context())
 	if err != nil {
@@ -17,14 +17,13 @@ func (h *Handler) ListExercises(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, exercises)
 }
 
-// CreateExercise creates a new exercise.
+// CreateExercise creates a new exercise template.
 func (h *Handler) CreateExercise(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Name        string `json:"name"`
+		Abbrev      string `json:"abbrev"`
 		Category    string `json:"category"`
-		Phase       string `json:"phase"`
 		Description string `json:"description"`
-		Distance    int    `json:"distance"`
 	}
 	if err := readJSON(r, &req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
@@ -34,11 +33,8 @@ func (h *Handler) CreateExercise(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "name is required")
 		return
 	}
-	if req.Phase == "" {
-		req.Phase = "main"
-	}
 
-	ex, err := h.Repo.CreateExercise(r.Context(), req.Name, req.Category, req.Phase, req.Description, req.Distance)
+	ex, err := h.Repo.CreateExercise(r.Context(), req.Name, req.Abbrev, req.Category, req.Description)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to create exercise")
 		return
@@ -46,7 +42,7 @@ func (h *Handler) CreateExercise(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, ex)
 }
 
-// GetExercise returns a single exercise by ID.
+// GetExercise returns a single exercise template by ID.
 func (h *Handler) GetExercise(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	ex, err := h.Repo.GetExercise(r.Context(), id)
