@@ -7,13 +7,14 @@ import { useCreateWorkout, type BuilderItem } from '../hooks/useCreateWorkout'
 import { useAuth } from '../lib/auth'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { ExportSection } from '../components/ExportSection'
+import { Button, Card, Input, Badge } from '../components/ui'
 
 type Tab = 'generate' | 'create' | 'find'
 
 const PHASES = [
-  { key: 'warmup' as const, label: 'Warmup', color: 'amber' },
-  { key: 'mainSet' as const, label: 'Main Set', color: 'blue' },
-  { key: 'cooldown' as const, label: 'Cooldown', color: 'green' },
+  { key: 'warmup' as const, label: 'Warmup', color: 'amber' as const },
+  { key: 'mainSet' as const, label: 'Main Set', color: 'blue' as const },
+  { key: 'cooldown' as const, label: 'Cooldown', color: 'green' as const },
 ]
 
 export function WorkoutBuilderPage() {
@@ -23,7 +24,6 @@ export function WorkoutBuilderPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [loadingWorkout, setLoadingWorkout] = useState(false)
 
-  // Load workout from ?load=id on mount
   useEffect(() => {
     const loadId = searchParams.get('load')
     if (!loadId) return
@@ -51,9 +51,7 @@ export function WorkoutBuilderPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">New Workout</h1>
-        <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-          {builder.totalMeters}m total
-        </span>
+        <Badge color="blue">{builder.totalMeters}m total</Badge>
       </div>
 
       {/* Tabs */}
@@ -77,11 +75,9 @@ export function WorkoutBuilderPage() {
         ))}
       </div>
 
-      {/* Tab panel */}
       {tab === 'generate' && <GeneratePanel onLoad={builder.loadPlan} />}
       {tab === 'find' && <FindPanel onLoad={builder.loadPlan} />}
 
-      {/* Builder (always visible, filled by generate/find or manual) */}
       <BuilderSection builder={builder} user={user} />
     </div>
   )
@@ -97,7 +93,7 @@ function GeneratePanel({ onLoad }: { onLoad: (plan: import('../api/workouts').Wo
   })
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
+    <Card className="space-y-4 p-6">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Total distance: <span className="font-bold text-blue-600">{distance}m</span>
@@ -113,15 +109,11 @@ function GeneratePanel({ onLoad }: { onLoad: (plan: import('../api/workouts').Wo
           <span>500m</span><span>5000m</span>
         </div>
       </div>
-      <button
-        onClick={() => mutate({ total_distance: distance })}
-        disabled={isPending}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-blue-700 disabled:opacity-50"
-      >
+      <Button onClick={() => mutate({ total_distance: distance })} disabled={isPending} className="w-full">
         {isPending ? 'Generating...' : 'Generate Random Workout'}
-      </button>
+      </Button>
       {error && <p className="text-sm text-red-600">{error.message}</p>}
-    </div>
+    </Card>
   )
 }
 
@@ -162,13 +154,12 @@ function FindPanel({ onLoad }: { onLoad: (plan: import('../api/workouts').Workou
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-3">
-      <input
+    <Card className="space-y-3">
+      <Input
         type="text"
         placeholder="Search shared workouts..."
         value={search}
         onChange={(e) => handleSearchChange(e.target.value)}
-        className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
       />
       {isLoading && <p className="text-sm text-gray-500">Loading...</p>}
       {workouts?.length === 0 && !isLoading && (
@@ -181,17 +172,18 @@ function FindPanel({ onLoad }: { onLoad: (plan: import('../api/workouts').Workou
               <p className="text-sm font-medium text-gray-900">{w.name}</p>
               <p className="text-xs text-gray-500">{w.total_meters}m</p>
             </div>
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => handleLoadWorkout(w.id)}
               disabled={loadingId === w.id}
-              className="rounded border border-blue-300 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
             >
               {loadingId === w.id ? 'Loading...' : 'Use'}
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
-    </div>
+    </Card>
   )
 }
 
@@ -211,7 +203,6 @@ function BuilderSection({ builder, user }: BuilderProps) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-workouts'] }),
   })
 
-  // Reset save state when builder content changes
   useEffect(() => {
     if (saveMutation.isSuccess) saveMutation.reset()
   }, [state])
@@ -221,15 +212,14 @@ function BuilderSection({ builder, user }: BuilderProps) {
   return (
     <>
       {/* Workout name */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
+      <Card>
         <label className="block text-sm font-medium text-gray-700 mb-1">Workout Name</label>
-        <input
+        <Input
           type="text"
           value={state.name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
         />
-      </div>
+      </Card>
 
       {/* Phase sections */}
       {PHASES.map((p) => {
@@ -282,12 +272,9 @@ function BuilderSection({ builder, user }: BuilderProps) {
                     title="Rest (sec)"
                   />
                   <span className="text-xs text-gray-500">s</span>
-                  <button
-                    onClick={() => removeItem(p.key, item.localId)}
-                    className="rounded border border-red-200 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition"
-                  >
+                  <Button variant="danger" size="sm" onClick={() => removeItem(p.key, item.localId)}>
                     Remove
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -300,24 +287,19 @@ function BuilderSection({ builder, user }: BuilderProps) {
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         {user && (
-          <button
+          <Button
             onClick={() => saveMutation.mutate()}
             disabled={totalMeters === 0 || saveMutation.isPending || saveMutation.isSuccess}
-            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 disabled:opacity-50"
+            className="bg-green-600 hover:bg-green-700"
           >
             {saveMutation.isPending ? 'Saving...' : saveMutation.isSuccess ? 'Saved!' : 'Save Workout'}
-          </button>
+          </Button>
         )}
-        <button
-          onClick={clearPlan}
-          disabled={totalMeters === 0}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
-        >
+        <Button variant="secondary" onClick={clearPlan} disabled={totalMeters === 0}>
           Clear
-        </button>
+        </Button>
       </div>
 
-      {/* Export */}
       {totalMeters > 0 && <ExportSection plan={plan} />}
     </>
   )

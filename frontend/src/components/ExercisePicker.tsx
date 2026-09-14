@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useExercises } from '../hooks/useExercises'
+import { Input } from './ui'
 
 interface ExercisePickerProps {
   onSelect: (name: string, abbrev: string) => void
@@ -34,7 +35,7 @@ export function ExercisePicker({ onSelect }: ExercisePickerProps) {
       <button
         type="button"
         onClick={() => { setOpen((v) => !v); setSearch('') }}
-        className="flex items-center gap-1 rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
+        className="inline-flex items-center gap-1 rounded-lg border border-dashed border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
       >
         <span className="text-lg leading-none">+</span>
         <span>Add Exercise</span>
@@ -43,13 +44,12 @@ export function ExercisePicker({ onSelect }: ExercisePickerProps) {
       {open && (
         <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg border border-gray-200 bg-white shadow-lg">
           <div className="p-2">
-            <input
+            <Input
               type="text"
               autoFocus
               placeholder="Search exercises..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
             />
           </div>
           <ul className="max-h-60 overflow-y-auto px-1 pb-1">

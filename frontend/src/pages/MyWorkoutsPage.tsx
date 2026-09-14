@@ -3,6 +3,7 @@ import { useAuth } from '../lib/auth'
 import { fetchMyWorkouts, deleteWorkout, shareWorkout, type WorkoutSummary } from '../api/savedWorkouts'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Button, Badge } from '../components/ui'
 
 export function MyWorkoutsPage() {
   const { user } = useAuth()
@@ -58,12 +59,7 @@ export function MyWorkoutsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">My Workouts</h1>
-        <Link
-          to="/workouts/new"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
-        >
-          New Workout
-        </Link>
+        <Button onClick={() => navigate('/workouts/new')}>New Workout</Button>
       </div>
 
       {shareLink && (
@@ -100,15 +96,9 @@ export function MyWorkoutsPage() {
                   <td className="px-4 py-3 text-sm font-medium text-gray-900">{w.name}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">{w.total_meters}m</td>
                   <td className="px-4 py-3 text-sm">
-                    {!w.is_owner && (
-                      <span className="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">Subscribed</span>
-                    )}
-                    {w.is_public && w.is_owner && (
-                      <span className="inline-block rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Shared</span>
-                    )}
-                    {!w.is_public && w.is_owner && (
-                      <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">Private</span>
-                    )}
+                    {!w.is_owner && <Badge color="blue">Subscribed</Badge>}
+                    {w.is_public && w.is_owner && <Badge color="green">Shared</Badge>}
+                    {!w.is_public && w.is_owner && <Badge color="gray">Private</Badge>}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-500">
                     {new Date(w.created_at).toLocaleDateString()}
@@ -116,20 +106,14 @@ export function MyWorkoutsPage() {
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
                       {w.is_owner && !w.is_public && (
-                        <button
-                          onClick={(e) => handleShare(e, w.id)}
-                          className="rounded border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
-                        >
+                        <Button variant="secondary" size="sm" onClick={(e) => handleShare(e, w.id)}>
                           Share
-                        </button>
+                        </Button>
                       )}
                       {w.is_owner && (
-                        <button
-                          onClick={(e) => handleDelete(e, w.id)}
-                          className="rounded border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
-                        >
+                        <Button variant="danger" size="sm" onClick={(e) => handleDelete(e, w.id)}>
                           Delete
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </td>

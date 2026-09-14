@@ -1,13 +1,12 @@
 import type { PlanItem, WorkoutPlan } from '../api/workouts'
+import { Badge } from './ui'
 
 export function PlanDisplay({ plan }: { plan: WorkoutPlan }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-900">{plan.name}</h2>
-        <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-          {plan.total_meters}m total
-        </span>
+        <Badge color="blue">{plan.total_meters}m total</Badge>
       </div>
 
       <PhaseSection title="Warmup" items={plan.warmup} color="amber" />
@@ -22,11 +21,8 @@ export function PhaseSection({ title, items, color }: { title: string; items: Pl
 
   const bgColor = { amber: 'bg-amber-50', blue: 'bg-blue-50', green: 'bg-green-50' }[color] ?? 'bg-gray-50'
   const headerColor = { amber: 'text-amber-800', blue: 'text-blue-800', green: 'text-green-800' }[color] ?? 'text-gray-800'
-  const badgeColor = {
-    amber: 'bg-amber-100 text-amber-700',
-    blue: 'bg-blue-100 text-blue-700',
-    green: 'bg-green-100 text-green-700',
-  }[color] ?? 'bg-gray-100 text-gray-700'
+  const badgeColorMap: Record<string, 'amber' | 'blue' | 'green'> = { amber: 'amber', blue: 'blue', green: 'green' }
+  const badgeColor = badgeColorMap[color] ?? 'gray' as const
 
   const phaseTotal = items.reduce((sum, it) => sum + it.sets * it.distance, 0)
 
@@ -34,9 +30,7 @@ export function PhaseSection({ title, items, color }: { title: string; items: Pl
     <div className={`rounded-lg ${bgColor} p-4`}>
       <div className="flex items-center justify-between mb-3">
         <h3 className={`font-semibold ${headerColor}`}>{title}</h3>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badgeColor}`}>
-          {phaseTotal}m
-        </span>
+        <Badge color={badgeColor}>{phaseTotal}m</Badge>
       </div>
       <ul className="space-y-2">
         {items.map((item, i) => (

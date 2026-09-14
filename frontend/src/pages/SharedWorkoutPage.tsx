@@ -4,6 +4,7 @@ import { fetchSharedWorkout, subscribeWorkout } from '../api/savedWorkouts'
 import { PlanDisplay } from '../components/PlanDisplay'
 import { ExportSection } from '../components/ExportSection'
 import { useAuth } from '../lib/auth'
+import { Button } from '../components/ui'
 import type { WorkoutPlan } from '../api/workouts'
 
 export function SharedWorkoutPage() {
@@ -36,13 +37,9 @@ export function SharedWorkoutPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Shared Workout</h1>
         {user && !subscribeMutation.isSuccess && (
-          <button
-            onClick={() => subscribeMutation.mutate()}
-            disabled={subscribeMutation.isPending}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 disabled:opacity-50"
-          >
+          <Button onClick={() => subscribeMutation.mutate()} disabled={subscribeMutation.isPending}>
             {subscribeMutation.isPending ? 'Subscribing...' : 'Subscribe'}
-          </button>
+          </Button>
         )}
         {subscribeMutation.isSuccess && (
           <span className="text-sm text-green-600 font-medium">Subscribed!</span>
