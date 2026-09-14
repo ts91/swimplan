@@ -250,10 +250,9 @@ function BuilderSection({ builder, user }: BuilderProps) {
                   <span className="text-xs text-gray-500">s</span>
                   <button
                     onClick={() => removeItem(p.key, item.localId)}
-                    className="text-red-400 hover:text-red-600 text-sm px-1"
-                    title="Remove"
+                    className="rounded border border-red-200 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition"
                   >
-                    &times;
+                    Remove
                   </button>
                 </li>
               ))}
