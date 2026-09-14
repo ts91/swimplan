@@ -93,6 +93,7 @@ func main() {
 		r.Post("/exercises", h.CreateExercise)
 		r.Get("/exercises/{id}", h.GetExercise)
 		r.Post("/workouts/generate", h.GenerateWorkout)
+		r.Post("/workouts/export", h.ExportWorkout)
 	})
 
 	srv := &http.Server{
