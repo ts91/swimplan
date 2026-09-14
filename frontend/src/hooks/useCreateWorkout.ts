@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import type { PlanItem, WorkoutPlan } from '../api/workouts'
 
-interface BuilderItem extends PlanItem {
+export interface BuilderItem extends PlanItem {
   localId: string
 }
 
@@ -17,13 +17,19 @@ function genId() {
   return `item-${++nextId}`
 }
 
+function toBuilderItems(items: PlanItem[]): BuilderItem[] {
+  return items.map((it) => ({ ...it, localId: genId() }))
+}
+
+const EMPTY_STATE: BuilderState = {
+  name: 'Custom Workout',
+  warmup: [],
+  mainSet: [],
+  cooldown: [],
+}
+
 export function useCreateWorkout() {
-  const [state, setState] = useState<BuilderState>({
-    name: 'Custom Workout',
-    warmup: [],
-    mainSet: [],
-    cooldown: [],
-  })
+  const [state, setState] = useState<BuilderState>(EMPTY_STATE)
 
   const addItem = useCallback((phase: 'warmup' | 'mainSet' | 'cooldown', name: string, abbrev: string) => {
     const item: BuilderItem = {
@@ -56,6 +62,19 @@ export function useCreateWorkout() {
     setState((s) => ({ ...s, name }))
   }, [])
 
+  const loadPlan = useCallback((plan: WorkoutPlan) => {
+    setState({
+      name: plan.name,
+      warmup: toBuilderItems(plan.warmup ?? []),
+      mainSet: toBuilderItems(plan.main_set ?? []),
+      cooldown: toBuilderItems(plan.cooldown ?? []),
+    })
+  }, [])
+
+  const clearPlan = useCallback(() => {
+    setState({ ...EMPTY_STATE })
+  }, [])
+
   const toPlan = useCallback((): WorkoutPlan => {
     const strip = (items: BuilderItem[]): PlanItem[] =>
       items.map(({ localId: _, ...rest }) => rest)
@@ -76,5 +95,5 @@ export function useCreateWorkout() {
     state.mainSet.reduce((t, it) => t + it.sets * it.distance, 0) +
     state.cooldown.reduce((t, it) => t + it.sets * it.distance, 0)
 
-  return { state, totalMeters, addItem, updateItem, removeItem, setName, toPlan }
+  return { state, totalMeters, addItem, updateItem, removeItem, setName, loadPlan, clearPlan, toPlan }
 }
