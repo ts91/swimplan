@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { generateWorkout } from '../api/workouts'
 import { saveWorkout, fetchPublicWorkouts, fetchWorkout, type WorkoutSummary } from '../api/savedWorkouts'
 import { useCreateWorkout, type BuilderItem } from '../hooks/useCreateWorkout'
@@ -177,10 +177,17 @@ interface BuilderProps {
 
 function BuilderSection({ builder, user }: BuilderProps) {
   const { state, totalMeters, addItem, updateItem, removeItem, setName, toPlan, clearPlan } = builder
+  const queryClient = useQueryClient()
 
   const saveMutation = useMutation({
     mutationFn: () => saveWorkout(toPlan()),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-workouts'] }),
   })
+
+  // Reset save state when builder content changes
+  useEffect(() => {
+    if (saveMutation.isSuccess) saveMutation.reset()
+  }, [state])
 
   const plan = toPlan()
 
@@ -268,7 +275,7 @@ function BuilderSection({ builder, user }: BuilderProps) {
         {user && (
           <button
             onClick={() => saveMutation.mutate()}
-            disabled={totalMeters === 0 || saveMutation.isPending}
+            disabled={totalMeters === 0 || saveMutation.isPending || saveMutation.isSuccess}
             className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 disabled:opacity-50"
           >
             {saveMutation.isPending ? 'Saving...' : saveMutation.isSuccess ? 'Saved!' : 'Save Workout'}
